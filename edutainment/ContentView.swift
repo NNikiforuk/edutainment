@@ -15,9 +15,11 @@ struct ContentView: View {
     @State private var questionNr = 1
     @State private var showQuestions = true
     @State private var showAlert = false
-    @State private var int2 = Int.random(in: 2...9)
     @State private var answer = 0
     @State private var score = 0
+    @State private var questions = [2, 3, 4, 5, 6, 7, 8, 9].shuffled()
+    @State private var currentQuestionIndex = 0
+    
     
     var body: some View {
         NavigationStack {
@@ -37,7 +39,9 @@ struct ContentView: View {
                 
                 HStack {
                     Spacer()
-                    Button("Start", action: startGame)
+                    Button("Start") {
+                        showQuestions = true
+                    }
                         .background(.green)
                         .foregroundStyle(.white)
                         .bold()
@@ -50,14 +54,13 @@ struct ContentView: View {
                     HStack {
                         Text("Question #\(questionNr):")
                         Spacer()
-                        Text("\(chosenMultiplicationTable) x \(int2)")
+                        Text("\(questions[currentQuestionIndex]) x \(chosenMultiplicationTable)")
                     }
                     TextField("Asnwer", value: $answer, format: .number)
-                        .keyboardType(.decimalPad)
                 }
             }
             .navigationTitle("MultiplicateIT")
-            .onSubmit(checkTheAnswer)
+            .onSubmit(startGame)
             .alert("Game over", isPresented: $showAlert) {
                 Button("New game") { }
             } message: {
@@ -67,25 +70,25 @@ struct ContentView: View {
     }
     
     func startGame() {
-        showQuestions = true
-    }
-    
-    func checkTheAnswer() {
         if questionNr == chosenquestionQty {
             showAlert = true
             showQuestions = false
             questionNr = 0
         }
         
-        var equation = chosenMultiplicationTable * int2
+        checkTheAnswer()
+    }
+    
+    func checkTheAnswer() {
+        let equation = chosenMultiplicationTable * questions[currentQuestionIndex]
         
         answer == equation ? (score += 1) : (score -= 1)
         questionNr += 1
+        currentQuestionIndex += 1
+        questions.shuffle()
         answer = 0
-        int2 = Int.random(in: 2...9)
     }
 }
-
 
 #Preview {
     ContentView()
